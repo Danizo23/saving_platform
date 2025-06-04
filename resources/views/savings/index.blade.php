@@ -56,6 +56,7 @@
             <th>Muda wa Mpango (miezi)</th>
             <th>Jumla ya Akiba (TZS)</th>
             <th>Tarehe ya Kutoa Akiba</th>
+            <th>Vitendo</th> {{-- Mpya --}}
         </tr>
     </thead>
     <tbody>
@@ -64,6 +65,16 @@
                 <td>{{ $plan->duration }}</td>
                 <td>{{ number_format($plan->total_amount) }}</td>
                 <td>{{ \Carbon\Carbon::parse($plan->withdraw_date)->format('d M Y') }}</td>
+                <td>
+                    @if(\Carbon\Carbon::now()->greaterThanOrEqualTo($plan->withdraw_date))
+                        <form action="{{ route('savings.withdrawPlan', $plan->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-sm btn-success">Toa Akiba</button>
+                        </form>
+                    @else
+                        <button class="btn btn-sm btn-secondary" disabled>Subiri</button>
+                    @endif
+                </td>
             </tr>
         @endforeach
     </tbody>

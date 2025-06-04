@@ -19,6 +19,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/savings', [SavingsController::class, 'index'])->name('savings.index');
     Route::get('/savings/create', [SavingsController::class, 'create'])->name('savings.create');
     Route::post('/savings', [SavingsController::class, 'store'])->name('savings.store');
+    Route::post('/savings/plan/{id}/withdraw', [SavingController::class, 'withdrawPlan'])->name('savings.withdrawPlan');
+
 });
 
 Route::middleware('auth')->group(function () {

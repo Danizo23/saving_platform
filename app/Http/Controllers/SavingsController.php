@@ -78,5 +78,39 @@ public function create()
     return redirect()->route('dashboard')->with('success', 'Akiba imewekwa kikamilifu!');
 }
 
+public function withdrawPlan($duration)
+{
+    $user = auth()->user();
+
+    // Chukua savings zote za user zenye duration hiyo na muda umefika
+    $savings = $user->savings()
+        ->where('duration', $duration)
+        ->where('end_date', '<=', now())
+        ->where('status', 'active') // Epuka zile zilizokwisha tolewa tayari
+        ->get();
+
+    if ($savings->isEmpty()) {
+        return back()->with('error', 'Hakuna akiba inayoweza kutolewa kwa mpango huu kwa sasa.');
+    }
+
+    // Loop na toa kila moja
+    foreach ($savings as $saving) {
+        $saving->status = 'withdrawn'; // au 'completed'
+        $saving->save();
+
+        // Optional: weka kwenye withdrawal history table
+        // Withdrawal::create([
+        //     'user_id' => $user->id,
+        //     'amount' => $saving->amount,
+        //     'saving_id' => $saving->id,
+        //     'withdrawn_at' => now(),
+        // ]);
+    }
+
+    return back()->with('success', 'Umefanikiwa kutoa akiba zote kwa mpango huu wa miezi ' . $duration);
+}
+
+
+
 
 }
