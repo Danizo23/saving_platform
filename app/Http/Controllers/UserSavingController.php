@@ -17,27 +17,27 @@ class UserSavingController extends Controller
     }
 
     // Store new user savings
-    public function store(Request $request)
-    {
-        $request->validate([
-            'plan_id' => 'required|exists:savings_plans,id',
-            'amount_saved' => 'required|numeric|min:1000',
-        ]);
+   public function store(Request $request)
+{
+    $request->validate([
+        'amount' => 'required|numeric|min:1000',
+        'saving_id' => 'required|exists:savings,id',
+    ]);
 
-        $plan = SavingsPlan::findOrFail($request->plan_id);
-        $startDate = now();
-        $endDate = $startDate->copy()->addMonths($plan->duration_months);
+    $saving = Saving::findOrFail($request->saving_id);
 
-        $saving = Auth::user()->savings()->create([
-            'plan_id' => $request->plan_id,
-            'amount_saved' => $request->amount_saved,
-            'start_date' => $startDate,
-            'end_date' => $endDate,
-            'status' => 'active',
-        ]);
+    $userSaving = new UserSaving();
+    $userSaving->user_id = auth()->id();
+    $userSaving->saving_id = $saving->id;
+    $userSaving->amount = $request->amount;
+    $userSaving->start_date = now();
+    $userSaving->end_date = now()->addMonths($saving->duration);
+    $userSaving->status = 'active';
+    $userSaving->save();
 
-        return response()->json($saving);
-    }
+    return redirect()->route('dashboard')->with('success', 'Akiba imehifadhiwa!');
+}
+
 
     // Show single user saving details
     public function show($id)

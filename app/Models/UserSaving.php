@@ -28,4 +28,9 @@ class UserSaving extends Model
     {
         return $this->hasMany(Transaction::class);
     }
+    public function saving()
+    {
+    return $this->belongsTo(Saving::class);
+    }
+
 }

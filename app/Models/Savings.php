@@ -29,4 +29,9 @@ class Savings extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function userSavings()
+     {
+    return $this->hasMany(UserSaving::class);   
+     }
+
 }

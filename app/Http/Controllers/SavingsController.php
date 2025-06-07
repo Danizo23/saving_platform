@@ -14,12 +14,12 @@ use Illuminate\Support\Facades\DB;
 class SavingsController extends Controller
 {
     // Display form ya kuweka akiba
-   public function index()
+  public function index()
 {
     $savings = Savings::where('user_id', auth()->id())->get();
     $totalAmount = $savings->sum('amount');
 
-    // Jumla ya akiba kwa kila mpango wa akiba
+    // Jumla ya akiba kwa kila mpango wa akiba (meza ya chini)
     $totalsByPlan = Savings::where('user_id', auth()->id())
         ->select('duration', DB::raw('SUM(amount) as total_amount'), DB::raw('MIN(start_date) as earliest_start_date'))
         ->groupBy('duration')
@@ -29,8 +29,21 @@ class SavingsController extends Controller
             return $plan;
         });
 
-    return view('savings.index', compact('savings', 'totalAmount', 'totalsByPlan'));
+    // Withdraw dates kwa kila duration - kwa ajili ya meza ya juu
+    $withdrawDates = Savings::where('user_id', auth()->id())
+        ->select('duration', DB::raw('MIN(start_date) as first_start_date'))
+        ->groupBy('duration')
+        ->get()
+        ->mapWithKeys(function ($item) {
+            return [
+                $item->duration => Carbon::parse($item->first_start_date)->addMonths($item->duration)->toDateString()
+            ];
+        });
+
+    // Rudisha kila kitu kwa view
+    return view('savings.index', compact('savings', 'totalAmount', 'totalsByPlan', 'withdrawDates'));
 }
+
 
 public function create()
 {
@@ -43,7 +56,11 @@ public function create()
 {
     // Pakua mpango wa akiba kulingana na ID iliyoombwa
     $plan = SavingsPlan::findOrFail($request->savings_plan_id);
-
+    
+    // Hesabu jumla ya pesa zilizowekwa tayari kwenye mpango huu na mtumiaji huyu
+    $existingTotal = Savings::where('user_id', Auth::id())
+        ->where('savings_plan_id', $plan->id)
+        ->sum('amount');
     // Thibitisha data za ombi
     $validated = $request->validate([
         'amount' => [
@@ -51,6 +68,12 @@ public function create()
             'numeric',
             'min:' . $plan->min_amount,
             'max:' . $plan->max_amount,
+            function($attribute, $value, $fail) use ($existingTotal) {
+                $maxTotal = 3_000_000; // millioni 3 = 3,000,000
+                if (($existingTotal + $value) > $maxTotal) {
+                    $fail('Jumla ya pesa kwa mpango huu haipaswi kuzidi millioni 3.');
+                }
+            },
         ],
         'savings_plan_id' => 'required|exists:savings_plans,id',
         'network' => 'required|in:Tigo,Vodacom,Airtel,Halotel',
@@ -109,8 +132,6 @@ public function withdrawPlan($duration)
 
     return back()->with('success', 'Umefanikiwa kutoa akiba zote kwa mpango huu wa miezi ' . $duration);
 }
-
-
 
 
 }
