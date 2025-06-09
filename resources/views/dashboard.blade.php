@@ -1,21 +1,36 @@
 <x-app-layout>
-  <style scoped>
+  <style>
     .dashboard {
       background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
       min-height: 100vh;
       padding: 2rem;
       color: white;
       display: flex;
+      flex-direction: column;
+    }
+
+    @media (min-width: 768px) {
+      .dashboard {
+        flex-direction: row;
+      }
     }
 
     .sidebar {
-      width: 220px;
-      margin-right: 2rem;
+      width: 100%;
+      margin-bottom: 2rem;
       padding: 1.5rem;
       background-color: #1a1a2e;
-      border: 2px solidrgb(196, 212, 214);
+      border: 2px solid rgb(8, 10, 10);
       border-radius: 12px;
-      box-shadow: 0 0 10px rgba(77, 208, 225, 0.2); 
+      box-shadow: 0 0 10px rgba(226, 230, 231, 0.2);
+    }
+
+    @media (min-width: 768px) {
+      .sidebar {
+        width: 220px;
+        margin-right: 2rem;
+        margin-bottom: 0;
+      }
     }
 
     .sidebar a,
@@ -53,6 +68,19 @@
       border-radius: 1rem;
       box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
       text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    @media (min-width: 768px) {
+      .summary-cards-container {
+        display: flex;
+        gap: 1rem;
+      }
+
+      .summary-card {
+        flex: 1;
+        margin-bottom: 0;
+      }
     }
 
     .summary-card h5 {
@@ -71,11 +99,12 @@
       padding: 1rem;
       border-radius: 1rem;
       margin-top: 2rem;
+      overflow-x: auto;
     }
   </style>
 
   <div class="dashboard">
-    <!-- Sidebar links inside a bordered box -->
+    <!-- Sidebar links -->
     <div class="sidebar">
       <a href="/dashboard">🏠 Dashboard</a>
       <a href="/savings">💰 Angalia Akiba</a>
@@ -93,29 +122,23 @@
         <p class="lead">Hii ni dashboard yako ya saving platform. Fuatilia akiba zako kwa ufanisi.</p>
       </div>
 
-      <div class="row row-cols-1 row-cols-md-3 g-4">
-        <div class="col">
-          <div class="summary-card">
-            <h5>Jumla ya Akiba</h5>
-            <p class="card-text">{{ number_format($totalAmount) }} TZS</p>
-          </div>
+      <div class="summary-cards-container">
+        <div class="summary-card">
+          <h5>Jumla ya Akiba</h5>
+          <p class="card-text">{{ number_format($totalAmount) }} TZS</p>
         </div>
-        <div class="col">
-          <div class="summary-card">
-            <h5>Mpango Hai wa Akiba</h5>
-            <p class="card-text">{{ number_format($activeAmount) }} TZS</p>
-          </div>
+        <div class="summary-card">
+          <h5>Mpango Hai wa Akiba</h5>
+          <p class="card-text">{{ number_format($activeAmount) }} TZS</p>
         </div>
-        <div class="col">
-          <div class="summary-card">
-            <h5>Mpango Uliokamilika</h5>
-            <p class="card-text">{{ number_format($completedAmount) }} TZS</p>
-          </div>
+        <div class="summary-card">
+          <h5>Mpango Uliokamilika</h5>
+          <p class="card-text">{{ number_format($completedAmount) }} TZS</p>
         </div>
       </div>
 
       <!-- Graph area -->
-      <div class="chart-placeholder mt-5">
+      <div class="chart-placeholder mt-10">
         <canvas id="savingsGraph" width="600" height="300"></canvas>
       </div>
     </div>
@@ -139,6 +162,8 @@
         }]
       },
       options: {
+        responsive: true,
+        maintainAspectRatio: false,
         scales: {
           y: {
             beginAtZero: true

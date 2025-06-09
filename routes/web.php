@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SavingsController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Savings;
+use App\Http\Controllers\AdminController;
+
 
 
 Route::get('/', function () {
@@ -21,6 +23,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return view('dashboard', compact('totalAmount', 'activeAmount', 'completedAmount'));
     })->name('dashboard');
 });
+Route::middleware(['auth', 'is_admin'])->group(function () {
+    Route::get('/admin', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+});
+
 
 // Savings Routes
 Route::middleware(['auth', 'verified'])->group(function () {
