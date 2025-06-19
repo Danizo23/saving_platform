@@ -109,7 +109,7 @@
       <a href="/dashboard">🏠 Dashboard</a>
       <a href="/savings">💰 Angalia Akiba</a>
       <a href="/savings/create">➕ Ongeza Akiba</a>
-      <form method="POST" action="{{ route('logout') }}">
+    <form method="POST" action="{{route('logout') }}">
         @csrf
         <button type="submit">🚪 Toka</button>
       </form>
