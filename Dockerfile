@@ -1,9 +1,10 @@
+# Image ya PHP 8.2 + Apache
 FROM php:8.2-apache
 
-# Enable Apache mod_rewrite
+# Weka Apache mod_rewrite (kufanikisha routing ya Laravel)
 RUN a2enmod rewrite
 
-# Install system dependencies
+# Install dependencies muhimu
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -14,23 +15,26 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     && docker-php-ext-install pdo pdo_mysql zip
 
-# Install Composer
+# Install Composer kutoka official composer image
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Set working directory
+# Weka working directory
 WORKDIR /var/www/html
 
-# Copy files
+# Copy project files zote
 COPY . .
 
-# Run composer install
-RUN composer install --no-dev --optimize-autoloader || true
+# Copy .env.example kuwa .env ili Laravel isikie environment
+RUN cp .env.example .env
 
-# Set permissions
+# Run composer install
+RUN composer install --no-dev --optimize-autoloader
+
+# Set permissions kwa storage na cache
 RUN chown -R www-data:www-data storage bootstrap/cache
 
-# Expose port
+# Fungua port 80 kwa apache
 EXPOSE 80
 
-# Run Laravel key:generate and start Apache
+# Start Laravel & Apache
 CMD php artisan key:generate && apache2-foreground
